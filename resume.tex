@@ -1,0 +1,47 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+%-------------------------------------------------------------------------------
+% CONFIGURATIONS
+%-------------------------------------------------------------------------------
+\documentclass[11pt, a4paper]{awesome-cv}
+\geometry{left=1.4cm, top=.8cm, right=1.4cm, bottom=1.8cm, footskip=.5cm}
+\fontdir[fonts/]
+
+% Ti consiglio un colore sobrio per il Nord Europa
+\colorlet{awesome}{awesome-darknight}
+\setbool{acvSectionColorHighlight}{true}
+\renewcommand{\acvHeaderSocialSep}{\quad\textbar\quad}
+
+%-------------------------------------------------------------------------------
+%	PERSONAL INFORMATION
+%-------------------------------------------------------------------------------
+\name{Giovanni}{Scovotto}
+\position{B.Sc. Computer Engineering Student}
+\address{Turin, Italy}
+
+\mobile{(+39) 3398539742}
+\email{info@giovanniscovotto.eu.org}
+\linkedin{giovanni-scovotto} 
+\github{zgiov} 
+
+%-------------------------------------------------------------------------------
+\begin{document}
+
+\makecvheader[C]
+
+\makecvfooter
+  {\today}
+  {Giovanni Scovotto~~~·~~~Résumé}
+  {\thepage}
+
+%-------------------------------------------------------------------------------
+%	CV/RESUME CONTENT
+%   Rinominiamo/Scegliamo solo le sezioni che ci servono per la DTU
+%-------------------------------------------------------------------------------
+\input{resume/education.tex}
+\input{resume/projects.tex}
+\input{resume/extracurricular.tex} 
+\input{resume/skills.tex}
+
+%-------------------------------------------------------------------------------
+\end{document}

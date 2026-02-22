@@ -1,7 +1,7 @@
 # 📄 Giovanni Scovotto - Curriculum Vitae
 
-[![Compile and Publish CV](https://github.com/TUO-USERNAME/TUO-REPO/actions/workflows/main.yml/badge.svg)](https://github.com/zgiov/giovanni-scovotto-cv/actions/workflows/main.yml)
-[![Ultimo Aggiornamento](https://img.shields.io/github/release-date/zio/giovanni-scovotto-cv?label=Ultimo%20Aggiornamento&color=00A388)](https://github.com/TUO-USERNAME/TUO-REPO/releases)
+[![Compile and Publish CV](https://github.com/zgiov/giovanni-scovotto-cv/actions/workflows/main.yml/badge.svg)](https://github.com/zgiov/giovanni-scovotto-cv/actions/workflows/main.yml)
+[![Ultimo Aggiornamento](https://img.shields.io/github/release-date/zgiov/giovanni-scovotto-cv?label=Ultimo%20Aggiornamento&color=00A388)](https://github.com/TUO-USERNAME/TUO-REPO/releases)
 
 Benvenuto nel repository del mio Curriculum Vitae! Questo progetto contiene il codice sorgente in **LaTeX** del mio CV, basato sul template tipografico [Awesome CV](https://github.com/posquit0/Awesome-CV), ed è interamente gestito tramite un'infrastruttura di **Continuous Integration / Continuous Deployment (CI/CD)**.
 

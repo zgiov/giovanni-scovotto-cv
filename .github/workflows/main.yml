@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     container: texlive/texlive:latest
 
-    # Necessario per dare a GitHub il permesso di creare la Release
     permissions:
       contents: write
 
@@ -36,18 +35,20 @@ jobs:
         name: Giovanni-CV-PDF
         path: CVs/*.pdf
 
-    # Genera un tag dinamico basato sulla data per la Release
-    - name: Generate Release Tag
-      id: tag
-      run: echo "date=$(date +'%d-%m-%Y')" >> $GITHUB_OUTPUT
+    # Genera il Tag per Git e il Nome formattato per la Release
+    - name: Generate Release Info
+      id: release_info
+      run: |
+        echo "tag_date=$(date +'%d-%b-%Y-%H-%M')" >> $GITHUB_OUTPUT
+        echo "rel_name=$(date +'%d %b %Y %H:%M')" >> $GITHUB_OUTPUT
 
     # Crea la Release pubblica su GitHub e allega il PDF
     - name: Publish Release
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: CV-${{ steps.tag.outputs.date }}
-        name: "CV Aggiornato (${{ steps.tag.outputs.date }})"
+        tag_name: CV-${{ steps.release_info.outputs.tag_date }}
+        name: "CV - ${{ steps.release_info.outputs.rel_name }}"
         files: CVs/*.pdf
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -27,7 +27,7 @@ jobs:
       - name: Load local fonts
         run: |
           mkdir -p ~/.local/share/fonts
-          cp fonts/* ~/.local/share/fonts/
+          find fonts/ -maxdepth 1 -type f -exec cp {} ~/.local/share/fonts/ \;
           fc-cache -fv
 
       # Usiamo l'azione ottimizzata al posto del container gigante

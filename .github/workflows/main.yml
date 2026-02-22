@@ -24,19 +24,24 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Load local fonts
+      # 1. Creiamo la cartella e calcoliamo il nome prima di lanciare il compilatore
+      - name: Prepare Folder and Filename
         run: |
-          mkdir -p ~/.local/share/fonts
-          find fonts/ -maxdepth 1 -type f -exec cp {} ~/.local/share/fonts/ \;
-          fc-cache -fv
+          mkdir -p CVs
+          echo "FILE_NAME=Giovanni_Scovotto_CV_$(date +'%d_%m_%Y')" >> $GITHUB_ENV
 
-      # Usiamo l'azione ottimizzata al posto del container gigante
+      # 2. Compiliamo usando le funzioni native dell'Action per i font!
       - name: Compile PDF
         uses: xu-cheng/latex-action@v3
         with:
           root_file: resume.tex
           compiler: xelatex
-          args: -jobname="Giovanni_Scovotto_CV_$(date +'%d_%m_%Y')" -output-directory=CVs
+          # Inseriamo il nome file salvato precedentemente
+          args: -jobname="${{ env.FILE_NAME }}" -output-directory=CVs
+          # Diciamo all'azione di iniettare questi font dentro la sua "bolla"
+          extra_fonts: |
+            fonts/*.ttf
+            fonts/*.otf
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

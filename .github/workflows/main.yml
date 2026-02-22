@@ -17,7 +17,8 @@ jobs:
     # Esponiamo la variabile 'rel_name' per poterla usare nel Job 2
     outputs:
       rel_name: ${{ steps.release_info.outputs.rel_name }}
-
+      tag_date: ${{ steps.release_info.outputs.tag_date }}
+    
     permissions:
       contents: write
 
@@ -135,13 +136,52 @@ jobs:
           secure: true
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "✅ CV Aggiornato con Successo!"
+          subject: "[CV] ✅ CV Aggiornato con Successo! "
           to: ${{ secrets.MAIL_TO }}
           from: "GitHub Actions CV Bot"
-          body: |
-            Ottime notizie! 🚀
-            
-            Il tuo CV è stato compilato correttamente e caricato su Google Drive.
-            Il permalink (giovanniscovotto.eu.org/cv) ora punta alla nuova versione.
-            
-            Data di aggiornamento: ${{ needs.build.outputs.rel_name }}
+          html_body: |
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <style>
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333333; margin: 0; padding: 20px; }
+                .container { max-width: 600px; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: auto; }
+                .header { background: #2c3e50; color: #ffffff; padding: 25px; text-align: center; }
+                .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+                .content { padding: 30px; line-height: 1.6; font-size: 16px; }
+                .button-container { text-align: center; margin: 30px 0; }
+                .button { display: inline-block; padding: 14px 28px; background-color: #3498db; color: #ffffff !important; text-decoration: none; border-radius: 6px; font-weight: bold; letter-spacing: 0.5px; }
+                .button:hover { background-color: #2980b9; }
+                .details { background: #f8f9fa; padding: 20px; border-left: 4px solid #3498db; margin-top: 20px; border-radius: 4px; font-size: 14px; }
+                .details p { margin: 0 0 10px 0; }
+                .details p:last-child { margin: 0; }
+                .footer { background: #ecf0f1; text-align: center; padding: 15px; font-size: 13px; color: #7f8c8d; border-top: 1px solid #e0e0e0; }
+                a { color: #3498db; text-decoration: none; }
+                a:hover { text-decoration: underline; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>✅ Il tuo CV è online!</h1>
+                </div>
+                <div class="content">
+                  <p>Ottime notizie!</p>
+                  <p>La tua pipeline di GitHub Actions è terminata con successo. Il PDF è stato compilato senza errori ed è stato caricato correttamente sul tuo Google Drive.</p>
+                  
+                  <div class="button-container">
+                    <a href="https://giovanniscovotto.eu.org/cv" class="button">Vedi il Permalink Attivo</a>
+                  </div>
+                  
+                  <div class="details">
+                    <p><b>📅 Data di aggiornamento:</b> ${{ needs.build.outputs.rel_name }}</p>
+                    <p><b>📦 Nome Release:</b> CV - ${{ needs.build.outputs.rel_name }}</p>
+                    <p><b>🔗 Link GitHub:</b> <a href="https://github.com/${{ github.repository }}/releases/tag/CV-${{ needs.build.outputs.tag_date }}">Apri la pagina della Release</a></p>
+                  </div>
+                </div>
+                <div class="footer">
+                  🤖 Generato automaticamente da GitHub Actions
+                </div>
+              </div>
+            </body>
+            </html>

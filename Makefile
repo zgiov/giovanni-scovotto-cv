@@ -1,22 +1,31 @@
-.PHONY: examples
+.PHONY: all clean
 
-CC = lualatex
-EXAMPLES_DIR = examples
-RESUME_DIR = examples/resume
-CV_DIR = examples/cv
+# The compiler (Awesome CV prefers xelatex)
+CC = xelatex
+
+# Directories and files
+OUT_DIR = CVs
+RESUME_DIR = resume
+MAIN_TEX = resume.tex
+
+# Find all .tex files in the resume directory to track dependencies
 RESUME_SRCS = $(shell find $(RESUME_DIR) -name '*.tex')
-CV_SRCS = $(shell find $(CV_DIR) -name '*.tex')
 
-examples: $(foreach x, coverletter cv resume, $x.pdf)
+# Get current date in DD_MM_YYYY format using the Unix date command
+DATE := $(shell date +%d_%m_%Y)
+TARGET_NAME = Giovanni_Scovotto_CV_$(DATE)
 
-resume.pdf: $(EXAMPLES_DIR)/resume.tex $(RESUME_SRCS)
-	$(CC) -output-directory=$(EXAMPLES_DIR) $<
+# The final output file path
+TARGET = $(OUT_DIR)/$(TARGET_NAME).pdf
 
-cv.pdf: $(EXAMPLES_DIR)/cv.tex $(CV_SRCS)
-	$(CC) -output-directory=$(EXAMPLES_DIR) $<
+# Default rule when GitHub Actions runs 'make'
+all: $(TARGET)
 
-coverletter.pdf: $(EXAMPLES_DIR)/coverletter.tex
-	$(CC) -output-directory=$(EXAMPLES_DIR) $<
+# How to build the target
+$(TARGET): $(MAIN_TEX) $(RESUME_SRCS)
+	@mkdir -p $(OUT_DIR)
+	$(CC) -output-directory=$(OUT_DIR) -jobname=$(TARGET_NAME) $(MAIN_TEX)
 
+# Clean up generated files (useful for local testing, though less needed on ephemeral GitHub runners)
 clean:
-	rm -rf $(EXAMPLES_DIR)/*.pdf
+	rm -rf $(OUT_DIR)

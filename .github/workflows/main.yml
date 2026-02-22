@@ -38,12 +38,6 @@ jobs:
           compiler: xelatex
           # Inseriamo il nome file salvato precedentemente
           args: -jobname="${{ env.FILE_NAME }}" -output-directory=CVs
-          # Diciamo all'azione di iniettare questi font dentro la sua "bolla"
-          extra_fonts: |
-            fonts/*.ttf
-            fonts/*.otf
-            fonts/static/*.ttf
-            fonts/static/*.otf
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

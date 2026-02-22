@@ -35,12 +35,12 @@ jobs:
         name: Giovanni-CV-PDF
         path: CVs/*.pdf
 
-    # Genera il Tag per Git e il Nome formattato per la Release
+    # Genera il Tag per Git e il Nome formattato per la Release (con fuso orario italiano)
     - name: Generate Release Info
       id: release_info
       run: |
-        echo "tag_date=$(date +'%d-%b-%Y-%H-%M')" >> $GITHUB_OUTPUT
-        echo "rel_name=$(date +'%d %b %Y %H:%M')" >> $GITHUB_OUTPUT
+        echo "tag_date=$(TZ='Europe/Rome' date +'%d-%b-%Y-%H-%M')" >> $GITHUB_OUTPUT
+        echo "rel_name=$(TZ='Europe/Rome' date +'%d %b %Y %H:%M')" >> $GITHUB_OUTPUT
 
     # Crea la Release pubblica su GitHub e allega il PDF
     - name: Publish Release

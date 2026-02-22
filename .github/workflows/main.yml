@@ -1,7 +1,9 @@
 name: Compile PDFs
 
 on:
-  push: {}
+  push:
+    branches:
+      - main
   pull_request: {}
 
 jobs:
@@ -9,9 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     container: texlive/texlive:latest
 
+    # Necessario per dare a GitHub il permesso di creare la Release
+    permissions:
+      contents: write
+
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v6
+      uses: actions/checkout@v4
 
     - name: Install fonts
       run: |
@@ -24,7 +30,24 @@ jobs:
     - name: Compile
       run: make
 
-    - uses: actions/upload-artifact@v6
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
       with:
-        name: examples
-        path: examples/*.pdf
+        name: Giovanni-CV-PDF
+        path: CVs/*.pdf
+
+    # Genera un tag dinamico basato sulla data per la Release
+    - name: Generate Release Tag
+      id: tag
+      run: echo "date=$(date +'%d-%m-%Y')" >> $GITHUB_OUTPUT
+
+    # Crea la Release pubblica su GitHub e allega il PDF
+    - name: Publish Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: CV-${{ steps.tag.outputs.date }}
+        name: "CV Aggiornato (${{ steps.tag.outputs.date }})"
+        files: CVs/*.pdf
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

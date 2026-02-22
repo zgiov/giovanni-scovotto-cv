@@ -7,6 +7,7 @@ on:
   pull_request: {}
 
 jobs:
+  # Primo job: Compila il PDF
   build:
     runs-on: ubuntu-latest
     container: texlive/texlive:latest
@@ -21,10 +22,7 @@ jobs:
     - name: Install fonts
       run: |
         apt update
-        apt install --yes \
-          fonts-roboto \
-          fonts-adobe-sourcesans3 \
-          ;
+        apt install --yes fonts-roboto fonts-adobe-sourcesans3
 
     - name: Compile
       run: make
@@ -35,15 +33,13 @@ jobs:
         name: Giovanni-CV-PDF
         path: CVs/*.pdf
 
-    # Genera il Tag per Git e il Nome formattato per la Release (con fuso orario italiano)
     - name: Generate Release Info
       id: release_info
       run: |
         echo "tag_date=$(TZ='Europe/Rome' date +'%d-%b-%Y-%H-%M')" >> $GITHUB_OUTPUT
         echo "rel_name=$(TZ='Europe/Rome' date +'%d %b %Y %H:%M')" >> $GITHUB_OUTPUT
 
-    # Crea la Release pubblica su GitHub e allega il PDF
-    - name: Publish Release
+    - name: Publish Release (Backup Interno)
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v2
       with:
@@ -52,3 +48,69 @@ jobs:
         files: CVs/*.pdf
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Secondo job: Carica e aggiorna su Google Drive
+  deploy-to-drive:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: Giovanni-CV-PDF
+        path: CVs
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install Google API Client
+      run: pip install google-api-python-client google-auth
+
+    - name: Upload to Google Drive (Mantiene il Permalink)
+      env:
+        GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
+        GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+      run: |
+        cat << 'EOF' > upload.py
+        import os, json, glob
+        from google.oauth2 import service_account
+        from googleapiclient.discovery import build
+        from googleapiclient.http import MediaFileUpload
+
+        # Trova il PDF generato
+        pdf_files = glob.glob('CVs/*.pdf')
+        if not pdf_files:
+            print("Nessun PDF trovato.")
+            exit(1)
+        
+        pdf_path = pdf_files[0]
+        pdf_name = 'Giovanni_Scovotto_CV.pdf' # Nome fisso su Drive
+
+        # Autenticazione con il file JSON segreto
+        creds_info = json.loads(os.environ['GDRIVE_CREDENTIALS_DATA'])
+        creds = service_account.Credentials.from_service_account_info(
+            creds_info, scopes=['https://www.googleapis.com/auth/drive']
+        )
+        service = build('drive', 'v3', credentials=creds)
+        folder_id = os.environ['GDRIVE_FOLDER_ID']
+
+        # Cerca se il file esiste già nella cartella
+        query = f"'{folder_id}' in parents and name='{pdf_name}' and trashed=false"
+        results = service.files().list(q=query, fields='files(id, name)').execute()
+        items = results.get('files', [])
+
+        media = MediaFileUpload(pdf_path, mimetype='application/pdf', resumable=True)
+
+        if not items:
+            print("Creazione nuovo file su Drive...")
+            file_metadata = {'name': pdf_name, 'parents': [folder_id]}
+            service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+        else:
+            print("Aggiornamento file esistente (mantiene il link!)...")
+            service.files().update(fileId=items[0]['id'], media_body=media).execute()
+        EOF
+        
+        python upload.py

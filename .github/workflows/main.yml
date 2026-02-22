@@ -12,13 +12,11 @@ jobs:
   # ==========================================
   build:
     runs-on: ubuntu-latest
-    container: texlive/texlive:latest
 
-    # Esponiamo la variabile 'rel_name' per poterla usare nel Job 2
     outputs:
       rel_name: ${{ steps.release_info.outputs.rel_name }}
       tag_date: ${{ steps.release_info.outputs.tag_date }}
-    
+
     permissions:
       contents: write
 
@@ -26,13 +24,19 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install fonts
+      - name: Load local fonts
         run: |
-          apt-get update
-          apt-get install --yes fonts-roboto fonts-adobe-sourcesans3
+          mkdir -p ~/.local/share/fonts
+          cp fonts/* ~/.local/share/fonts/
+          fc-cache -fv
 
+      # Usiamo l'azione ottimizzata al posto del container gigante
       - name: Compile PDF
-        run: make
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: resume.tex
+          compiler: xelatex
+          args: -jobname="Giovanni_Scovotto_CV_$(date +'%d_%m_%Y')" -output-directory=CVs
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -136,7 +140,7 @@ jobs:
           secure: true
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "[CV] ✅ CV Aggiornato con Successo! "
+          subject: "[CV] CV Aggiornato con Successo! ✅"
           to: ${{ secrets.MAIL_TO }}
           from: "GitHub Actions CV Bot"
           html_body: |
@@ -170,7 +174,7 @@ jobs:
                   <p>La tua pipeline di GitHub Actions è terminata con successo. Il PDF è stato compilato senza errori ed è stato caricato correttamente sul tuo Google Drive.</p>
                   
                   <div class="button-container">
-                    <a href="https://giovanniscovotto.eu.org/cv" class="button">Vedi il Permalink Attivo</a>
+                    <a href="https://giovanniscovotto.eu.org/cv" class="button">giovanniscovotto.eu.org/cv</a>
                   </div>
                   
                   <div class="details">

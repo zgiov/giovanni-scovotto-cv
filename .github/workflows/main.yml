@@ -42,6 +42,8 @@ jobs:
           extra_fonts: |
             fonts/*.ttf
             fonts/*.otf
+            fonts/static/*.ttf
+            fonts/static/*.otf
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

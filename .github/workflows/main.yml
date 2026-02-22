@@ -69,10 +69,11 @@ jobs:
     - name: Install Google API Client
       run: pip install google-api-python-client google-auth
 
-    - name: Upload to Google Drive (Mantiene il Permalink)
+    - name: Upload to Google Drive (Impersonando l'utente)
       env:
         GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
         GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+        GDRIVE_USER_EMAIL: ${{ secrets.GDRIVE_USER_EMAIL }}
       run: |
         cat << 'EOF' > upload.py
         import os, json, glob
@@ -89,10 +90,12 @@ jobs:
         pdf_path = pdf_files[0]
         pdf_name = 'Giovanni_Scovotto_CV.pdf' # Nome fisso su Drive
 
-        # Autenticazione con il file JSON segreto
+        # Autenticazione con delega a livello di dominio
         creds_info = json.loads(os.environ['GDRIVE_CREDENTIALS_DATA'])
         creds = service_account.Credentials.from_service_account_info(
-            creds_info, scopes=['https://www.googleapis.com/auth/drive']
+            creds_info, 
+            scopes=['https://www.googleapis.com/auth/drive'],
+            subject=os.environ['GDRIVE_USER_EMAIL']  # <--- Questa riga fa la magia!
         )
         service = build('drive', 'v3', credentials=creds)
         folder_id = os.environ['GDRIVE_FOLDER_ID']

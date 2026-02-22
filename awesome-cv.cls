@@ -185,7 +185,7 @@
 %                Configuration for fonts
 %-------------------------------------------------------------------------------
 \newcommand*{\headerfont}{\roboto\selectfont}
-\newcommand*{\headerfontlight}{\roboto\fontseries{l}\selectfont}
+\newcommand*{\headerfontlight}{\roboto\fontseries{m}\selectfont}
 \newcommand*{\footerfont}{\sffamily}
 \newcommand*{\bodyfont}{\sffamily}
 \newcommand*{\bodyfontlight}{\sffamily\fontseries{l}\selectfont}
@@ -195,8 +195,8 @@
 %-------------------------------------------------------------------------------
 % Configure styles for each CV elements
 % For fundamental structures
-\newcommand*{\headerfirstnamestyle}[1]{{\fontsize{32pt}{1em}\headerfontlight\color{graytext} #1}}
-\newcommand*{\headerlastnamestyle}[1]{{\fontsize{32pt}{1em}\headerfont\bfseries\color{text} #1}}
+\newcommand*{\headerfirstnamestyle}[1]{{\fontsize{24pt}{1em}\headerfontlight\color{graytext} #1}}
+\newcommand*{\headerlastnamestyle}[1]{{\fontsize{24pt}{1em}\headerfont\bfseries\color{text} #1}}
 \newcommand*{\headerpositionstyle}[1]{{\fontsize{7.6pt}{1em}\bodyfont\scshape\color{awesome} #1}}
 \newcommand*{\headeraddressstyle}[1]{{\fontsize{8pt}{1em}\headerfont\itshape\color{lighttext} #1}}
 \newcommand*{\headersocialstyle}[1]{{\fontsize{6.8pt}{1em}\headerfont\color{text} #1}}
@@ -476,7 +476,7 @@
 
 % Others
 \newcommand{\acvSectionTopSkip}{3mm}
-\newcommand{\acvSectionContentTopSkip}{2.5mm}
+\newcommand{\acvSectionContentTopSkip}{1.5mm}
 
 
 %-------------------------------------------------------------------------------
@@ -742,7 +742,7 @@
 % Define an entry of cv information
 % Usage: \cventry{<position>}{<title>}{<location>}{<date>}{<description>}
 \newcommand*{\cventry}[5]{%
-  \vspace{-2.0mm}
+  \vspace{-1.0mm}
   \setlength\tabcolsep{0pt}
   \setlength{\extrarowheight}{0pt}
   \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} L{\textwidth - 4.5cm} R{4.5cm}}

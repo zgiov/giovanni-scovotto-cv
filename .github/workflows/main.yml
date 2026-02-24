@@ -23,7 +23,7 @@ jobs:
 
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     # 1. Creiamo la cartella e calcoliamo il nome prima di lanciare il compilatore
     - name: Prepare Folder and Filename
@@ -42,7 +42,7 @@ jobs:
         args: -jobname=${{ steps.prep.outputs.FILE_NAME }} -output-directory=CVs
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: Giovanni-CV-PDF
         path: CVs/*.pdf
@@ -73,7 +73,7 @@ jobs:
 
     steps:
     - name: Download Artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: Giovanni-CV-PDF
         path: CVs
@@ -136,7 +136,7 @@ jobs:
         python upload.py
 
     - name: Invia email di conferma
-      uses: dawidd6/action-send-mail@v3
+      uses: dawidd6/action-send-mail@v9
       with:
         server_address: smtp.gmail.com
         server_port: 465

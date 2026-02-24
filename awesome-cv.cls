@@ -812,7 +812,7 @@
   \vspace{-2.0mm}
     \setlength\tabcolsep{1ex}
     \setlength{\extrarowheight}{0pt}
-    \tabularx{\textwidth}{r>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}X}
+    \tabularx{\textwidth}{l>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}X}
 }{%
 \endtabularx\par
 }

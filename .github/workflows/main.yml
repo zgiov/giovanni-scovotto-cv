@@ -34,7 +34,7 @@ jobs:
 
     # 2. Compiliamo usando le funzioni native dell'Action per i font!
     - name: Compile PDF
-      uses: xu-cheng/latex-action@v3
+      uses: xu-cheng/latex-action@v4
       with:
         root_file: resume.tex
         compiler: xelatex

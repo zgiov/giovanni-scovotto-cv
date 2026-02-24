@@ -82,7 +82,7 @@
   Renderer=HarfBuzz,
 }
 
-\setmainfont{Satoshi}[
+\setmainfont{SourceSans3}[
   Path=fonts/static/,
   Extension=.ttf,
   UprightFont=*-Regular,
@@ -92,7 +92,7 @@
   FontFace={l}{n}{Font=*-Light},
   FontFace={l}{it}{Font=*-LightItalic}
 ]
-\setsansfont{Satoshi}[
+\setsansfont{SourceSans3}[
   Path=fonts/static/,
   Extension=.ttf,
   UprightFont=*-Regular,

@@ -23,7 +23,7 @@ jobs:
 
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     # 1. Creiamo la cartella e calcoliamo il nome prima di lanciare il compilatore
     - name: Prepare Folder and Filename
@@ -42,7 +42,7 @@ jobs:
         args: -jobname=${{ steps.prep.outputs.FILE_NAME }} -output-directory=CVs
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: Giovanni-CV-PDF
         path: CVs/*.pdf

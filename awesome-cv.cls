@@ -102,7 +102,7 @@
   FontFace={l}{n}{Font=*-Light},
   FontFace={l}{it}{Font=*-LightItalic}
 ]
-\newfontfamily\roboto{Roboto}[
+\newfontfamily\headerfontfamily{Satoshi}[
   Path=fonts/static/,
   Extension=.ttf,
   UprightFont=*-Regular,
@@ -118,7 +118,7 @@
 % Needed to deal a paragraphs
 \RequirePackage{parskip}
 % Needed to deal hyperlink
-\RequirePackage[hidelinks,unicode,pdfpagelabels=false]{hyperref}
+\RequirePackage[colorlinks=true, urlcolor=awesome, linkcolor=awesome, unicode, pdfpagelabels=false]{hyperref}
 \hypersetup{%
   pdftitle={},
   pdfauthor={},
@@ -175,6 +175,7 @@
 \colorlet{lighttext}{lightgray}
 \colorlet{sectiondivider}{gray}
 % Awesome colors
+\definecolor{awesome-darkemerald}{HTML}{005C4B}
 \definecolor{awesome-emerald}{HTML}{00A388}
 \definecolor{awesome-skyblue}{HTML}{0395DE}
 \definecolor{awesome-red}{HTML}{DC3522}
@@ -183,7 +184,7 @@
 \definecolor{awesome-nephritis}{HTML}{27AE60}
 \definecolor{awesome-concrete}{HTML}{95A5A6}
 \definecolor{awesome-darknight}{HTML}{131A28}
-\colorlet{awesome}{awesome-red}
+\colorlet{awesome}{awesome-darkemerald}
 
 % Boolean value to switch section color highlighting
 \newbool{acvSectionColorHighlight}
@@ -192,8 +193,8 @@
 %-------------------------------------------------------------------------------
 %                Configuration for fonts
 %-------------------------------------------------------------------------------
-\newcommand*{\headerfont}{\roboto\selectfont}
-\newcommand*{\headerfontlight}{\roboto\fontseries{m}\selectfont}
+\newcommand*{\headerfont}{\headerfontfamily\selectfont}
+\newcommand*{\headerfontlight}{\headerfontfamily\fontseries{m}\selectfont}
 \newcommand*{\footerfont}{\sffamily}
 \newcommand*{\bodyfont}{\sffamily}
 \newcommand*{\bodyfontlight}{\sffamily\fontseries{l}\selectfont}
@@ -812,7 +813,7 @@
   \vspace{-2.0mm}
     \setlength\tabcolsep{1ex}
     \setlength{\extrarowheight}{0pt}
-    \tabularx{\textwidth}{r>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}X}
+    \tabularx{\textwidth}{l>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}X}
 }{%
 \endtabularx\par
 }

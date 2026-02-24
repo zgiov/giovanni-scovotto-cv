@@ -82,7 +82,7 @@
   Renderer=HarfBuzz,
 }
 
-\setmainfont{Satoshi}[
+\setmainfont{SourceSans3}[
   Path=fonts/static/,
   Extension=.ttf,
   UprightFont=*-Regular,
@@ -92,7 +92,7 @@
   FontFace={l}{n}{Font=*-Light},
   FontFace={l}{it}{Font=*-LightItalic}
 ]
-\setsansfont{Satoshi}[
+\setsansfont{SourceSans3}[
   Path=fonts/static/,
   Extension=.ttf,
   UprightFont=*-Regular,
@@ -102,7 +102,7 @@
   FontFace={l}{n}{Font=*-Light},
   FontFace={l}{it}{Font=*-LightItalic}
 ]
-\newfontfamily\roboto{Roboto}[
+\newfontfamily\headerfontfamily{Satoshi}[
   Path=fonts/static/,
   Extension=.ttf,
   UprightFont=*-Regular,
@@ -192,8 +192,8 @@
 %-------------------------------------------------------------------------------
 %                Configuration for fonts
 %-------------------------------------------------------------------------------
-\newcommand*{\headerfont}{\roboto\selectfont}
-\newcommand*{\headerfontlight}{\roboto\fontseries{m}\selectfont}
+\newcommand*{\headerfont}{\headerfontfamily\selectfont}
+\newcommand*{\headerfontlight}{\headerfontfamily\fontseries{m}\selectfont}
 \newcommand*{\footerfont}{\sffamily}
 \newcommand*{\bodyfont}{\sffamily}
 \newcommand*{\bodyfontlight}{\sffamily\fontseries{l}\selectfont}

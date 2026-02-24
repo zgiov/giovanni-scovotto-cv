@@ -3,8 +3,8 @@ name: Compile and Publish CV
 on:
   push:
     branches:
-      - main
-      - development
+    - main
+    - development
   pull_request: {}
 
 jobs:
@@ -22,45 +22,46 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+    - name: Checkout repo
+      uses: actions/checkout@v4
 
-      # 1. Creiamo la cartella e calcoliamo il nome prima di lanciare il compilatore
-      - name: Prepare Folder and Filename
-        run: |
-          mkdir -p CVs
-          echo "FILE_NAME=Giovanni_Scovotto_CV_$(date +'%d_%m_%Y')" >> $GITHUB_ENV
+    # 1. Creiamo la cartella e calcoliamo il nome prima di lanciare il compilatore
+    - name: Prepare Folder and Filename
+      id: prep
+      run: |
+        mkdir -p CVs
+        echo "FILE_NAME=Giovanni_Scovotto_CV_$(date +'%d_%m_%Y')" >> $GITHUB_OUTPUT
 
-      # 2. Compiliamo usando le funzioni native dell'Action per i font!
-      - name: Compile PDF
-        uses: xu-cheng/latex-action@v3
-        with:
-          root_file: resume.tex
-          compiler: xelatex
-          # Inseriamo il nome file salvato precedentemente
-          args: -jobname=${{ env.FILE_NAME }} -output-directory=CVs
+    # 2. Compiliamo usando le funzioni native dell'Action per i font!
+    - name: Compile PDF
+      uses: xu-cheng/latex-action@v3
+      with:
+        root_file: resume.tex
+        compiler: xelatex
+        # Inseriamo il nome file salvato precedentemente
+        args: -jobname=${{ steps.prep.outputs.FILE_NAME }} -output-directory=CVs
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Giovanni-CV-PDF
-          path: CVs/*.pdf
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Giovanni-CV-PDF
+        path: CVs/*.pdf
 
-      - name: Generate Release Info
-        id: release_info
-        run: |
-          echo "tag_date=$(TZ='Europe/Rome' date +'%d-%b-%Y-%H-%M')" >> $GITHUB_OUTPUT
-          echo "rel_name=$(TZ='Europe/Rome' date +'%d %b %Y %H:%M')" >> $GITHUB_OUTPUT
+    - name: Generate Release Info
+      id: release_info
+      run: |
+        echo "tag_date=$(TZ='Europe/Rome' date +'%d-%b-%Y-%H-%M')" >> $GITHUB_OUTPUT
+        echo "rel_name=$(TZ='Europe/Rome' date +'%d %b %Y %H:%M')" >> $GITHUB_OUTPUT
 
-      - name: Publish Release (Backup Interno)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: CV-${{ steps.release_info.outputs.tag_date }}
-          name: "CV - ${{ steps.release_info.outputs.rel_name }}"
-          files: CVs/*.pdf
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Publish Release (Backup Interno)
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: CV-${{ steps.release_info.outputs.tag_date }}
+        name: "CV - ${{ steps.release_info.outputs.rel_name }}"
+        files: CVs/*.pdf
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # ==========================================
   # JOB 2: Caricamento su Drive e Notifica Mail
@@ -69,125 +70,125 @@ jobs:
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: Giovanni-CV-PDF
-          path: CVs
+    - name: Download Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: Giovanni-CV-PDF
+        path: CVs
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
 
-      - name: Install Google API Client
-        run: pip install google-api-python-client google-auth
+    - name: Install Google API Client
+      run: pip install google-api-python-client google-auth
 
-      - name: Upload to Google Drive
-        env:
-          GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
-          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
-          GDRIVE_USER_EMAIL: ${{ secrets.GDRIVE_USER_EMAIL }}
-        run: |
-          cat << 'EOF' > upload.py
-          import os, json, glob
-          from google.oauth2 import service_account
-          from googleapiclient.discovery import build
-          from googleapiclient.http import MediaFileUpload
+    - name: Upload to Google Drive
+      env:
+        GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
+        GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+        GDRIVE_USER_EMAIL: ${{ secrets.GDRIVE_USER_EMAIL }}
+      run: |
+        cat << 'EOF' > upload.py
+        import os, json, glob
+        from google.oauth2 import service_account
+        from googleapiclient.discovery import build
+        from googleapiclient.http import MediaFileUpload
 
-          # Trova il PDF generato
-          pdf_files = glob.glob('CVs/*.pdf')
-          if not pdf_files:
-              print("Nessun PDF trovato.")
-              exit(1)
-          
-          pdf_path = pdf_files[0]
-          pdf_name = 'Giovanni_Scovotto_CV.pdf' # Nome fisso su Drive
+        # Trova il PDF generato
+        pdf_files = glob.glob('CVs/*.pdf')
+        if not pdf_files:
+            print("Nessun PDF trovato.")
+            exit(1)
 
-          # Autenticazione con delega a livello di dominio
-          creds_info = json.loads(os.environ['GDRIVE_CREDENTIALS_DATA'])
-          creds = service_account.Credentials.from_service_account_info(
-              creds_info, 
-              scopes=['https://www.googleapis.com/auth/drive'],
-              subject=os.environ['GDRIVE_USER_EMAIL']
-          )
-          service = build('drive', 'v3', credentials=creds)
-          folder_id = os.environ['GDRIVE_FOLDER_ID']
+        pdf_path = pdf_files[0]
+        pdf_name = 'Giovanni_Scovotto_CV.pdf' # Nome fisso su Drive
 
-          # Cerca se il file esiste già nella cartella
-          query = f"'{folder_id}' in parents and name='{pdf_name}' and trashed=false"
-          results = service.files().list(q=query, fields='files(id, name)').execute()
-          items = results.get('files', [])
+        # Autenticazione con delega a livello di dominio
+        creds_info = json.loads(os.environ['GDRIVE_CREDENTIALS_DATA'])
+        creds = service_account.Credentials.from_service_account_info(
+            creds_info,
+            scopes=['https://www.googleapis.com/auth/drive'],
+            subject=os.environ['GDRIVE_USER_EMAIL']
+        )
+        service = build('drive', 'v3', credentials=creds)
+        folder_id = os.environ['GDRIVE_FOLDER_ID']
 
-          media = MediaFileUpload(pdf_path, mimetype='application/pdf', resumable=True)
+        # Cerca se il file esiste già nella cartella
+        query = f"'{folder_id}' in parents and name='{pdf_name}' and trashed=false"
+        results = service.files().list(q=query, fields='files(id, name)').execute()
+        items = results.get('files', [])
 
-          if not items:
-              print("Creazione nuovo file su Drive...")
-              file_metadata = {'name': pdf_name, 'parents': [folder_id]}
-              service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-          else:
-              print("Aggiornamento file esistente (mantiene il link!)...")
-              service.files().update(fileId=items[0]['id'], media_body=media).execute()
-          EOF
-          
-          python upload.py
-      
-      - name: Invia email di conferma
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          secure: true
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "[CV] CV Aggiornato con Successo! ✅"
-          to: ${{ secrets.MAIL_TO }}
-          from: "GitHub Actions CV Bot"
-          html_body: |
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <style>
-                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333333; margin: 0; padding: 20px; }
-                .container { max-width: 600px; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: auto; }
-                .header { background: #2c3e50; color: #ffffff; padding: 25px; text-align: center; }
-                .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
-                .content { padding: 30px; line-height: 1.6; font-size: 16px; }
-                .button-container { text-align: center; margin: 30px 0; }
-                .button { display: inline-block; padding: 14px 28px; background-color: #3498db; color: #ffffff !important; text-decoration: none; border-radius: 6px; font-weight: bold; letter-spacing: 0.5px; }
-                .button:hover { background-color: #2980b9; }
-                .details { background: #f8f9fa; padding: 20px; border-left: 4px solid #3498db; margin-top: 20px; border-radius: 4px; font-size: 14px; }
-                .details p { margin: 0 0 10px 0; }
-                .details p:last-child { margin: 0; }
-                .footer { background: #ecf0f1; text-align: center; padding: 15px; font-size: 13px; color: #7f8c8d; border-top: 1px solid #e0e0e0; }
-                a { color: #3498db; text-decoration: none; }
-                a:hover { text-decoration: underline; }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <div class="header">
-                  <h1>✅ Il tuo CV è online!</h1>
+        media = MediaFileUpload(pdf_path, mimetype='application/pdf', resumable=True)
+
+        if not items:
+            print("Creazione nuovo file su Drive...")
+            file_metadata = {'name': pdf_name, 'parents': [folder_id]}
+            service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+        else:
+            print("Aggiornamento file esistente (mantiene il link!)...")
+            service.files().update(fileId=items[0]['id'], media_body=media).execute()
+        EOF
+
+        python upload.py
+
+    - name: Invia email di conferma
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 465
+        secure: true
+        username: ${{ secrets.MAIL_USERNAME }}
+        password: ${{ secrets.MAIL_PASSWORD }}
+        subject: "[CV] CV Aggiornato con Successo! ✅"
+        to: ${{ secrets.MAIL_TO }}
+        from: "GitHub Actions CV Bot"
+        html_body: |
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <style>
+              body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333333; margin: 0; padding: 20px; }
+              .container { max-width: 600px; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: auto; }
+              .header { background: #2c3e50; color: #ffffff; padding: 25px; text-align: center; }
+              .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+              .content { padding: 30px; line-height: 1.6; font-size: 16px; }
+              .button-container { text-align: center; margin: 30px 0; }
+              .button { display: inline-block; padding: 14px 28px; background-color: #3498db; color: #ffffff !important; text-decoration: none; border-radius: 6px; font-weight: bold; letter-spacing: 0.5px; }
+              .button:hover { background-color: #2980b9; }
+              .details { background: #f8f9fa; padding: 20px; border-left: 4px solid #3498db; margin-top: 20px; border-radius: 4px; font-size: 14px; }
+              .details p { margin: 0 0 10px 0; }
+              .details p:last-child { margin: 0; }
+              .footer { background: #ecf0f1; text-align: center; padding: 15px; font-size: 13px; color: #7f8c8d; border-top: 1px solid #e0e0e0; }
+              a { color: #3498db; text-decoration: none; }
+              a:hover { text-decoration: underline; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>✅ Il tuo CV è online!</h1>
+              </div>
+              <div class="content">
+                <p>Ottime notizie!</p>
+                <p>La tua pipeline di GitHub Actions è terminata con successo. Il PDF è stato compilato senza errori ed è stato caricato correttamente sul tuo Google Drive.</p>
+
+                <div class="button-container">
+                  <a href="https://giovanniscovotto.eu.org/cv" class="button">giovanniscovotto.eu.org/cv</a>
                 </div>
-                <div class="content">
-                  <p>Ottime notizie!</p>
-                  <p>La tua pipeline di GitHub Actions è terminata con successo. Il PDF è stato compilato senza errori ed è stato caricato correttamente sul tuo Google Drive.</p>
-                  
-                  <div class="button-container">
-                    <a href="https://giovanniscovotto.eu.org/cv" class="button">giovanniscovotto.eu.org/cv</a>
-                  </div>
-                  
-                  <div class="details">
-                    <p><b>📅 Data di aggiornamento:</b> ${{ needs.build.outputs.rel_name }}</p>
-                    <p><b>📦 Nome Release:</b> CV - ${{ needs.build.outputs.rel_name }}</p>
-                    <p><b>🔗 Link GitHub:</b> <a href="https://github.com/${{ github.repository }}/releases/tag/CV-${{ needs.build.outputs.tag_date }}">Apri la pagina della Release</a></p>
-                  </div>
-                </div>
-                <div class="footer">
-                  🤖 Generato automaticamente da GitHub Actions
+
+                <div class="details">
+                  <p><b>📅 Data di aggiornamento:</b> ${{ needs.build.outputs.rel_name }}</p>
+                  <p><b>📦 Nome Release:</b> CV - ${{ needs.build.outputs.rel_name }}</p>
+                  <p><b>🔗 Link GitHub:</b> <a href="https://github.com/${{ github.repository }}/releases/tag/CV-${{ needs.build.outputs.tag_date }}">Apri la pagina della Release</a></p>
                 </div>
               </div>
-            </body>
-            </html>
+              <div class="footer">
+                🤖 Generato automaticamente da GitHub Actions
+              </div>
+            </div>
+          </body>
+          </html>

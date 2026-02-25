@@ -136,7 +136,7 @@ jobs:
         python upload.py
 
     - name: Invia email di conferma
-      uses: dawidd6/action-send-mail@v9
+      uses: dawidd6/action-send-mail@v10
       with:
         server_address: smtp.gmail.com
         server_port: 465

@@ -55,7 +55,7 @@ jobs:
 
     - name: Publish Release (Backup Interno)
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         tag_name: CV-${{ steps.release_info.outputs.tag_date }}
         name: "CV - ${{ steps.release_info.outputs.rel_name }}"
@@ -136,7 +136,7 @@ jobs:
         python upload.py
 
     - name: Invia email di conferma
-      uses: dawidd6/action-send-mail@v10
+      uses: dawidd6/action-send-mail@v17
       with:
         server_address: smtp.gmail.com
         server_port: 465

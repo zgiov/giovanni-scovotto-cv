@@ -145,7 +145,7 @@ jobs:
         password: ${{ secrets.MAIL_PASSWORD }}
         subject: "[CV] CV Aggiornato con Successo! ✅"
         to: ${{ secrets.MAIL_TO }}
-        from: "GitHub Actions CV Bot"
+        from: '"GitHub Actions CV Bot" <${{ secrets.MAIL_FROM }}>'
         html_body: |
           <!DOCTYPE html>
           <html>

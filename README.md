@@ -10,7 +10,7 @@ Instead of manually compiling the document and updating the hosted file every ti
 ## 📥 Download the latest version
 
 You can always find the most up-to-date, compiled PDF here:
-👉 **[giovanniscovotto.eu.org/cv](https://giovanniscovotto.eu.org/cv)**
+👉 **[giovanniscovotto.it/cv](https://giovanniscovotto.it/cv)**
 
 ## ⚙️ How the pipeline works
 
